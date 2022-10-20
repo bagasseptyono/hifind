@@ -4,7 +4,8 @@
 <script src="<?=BASEURL ?>/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
 
-
-<script src="js/main.js"></script>
+<script src="<?=BASEURL ?>/js/jquery.min.js"></script>
+<script src="<?=BASEURL ?>/js/popper.js"></script>
+<script src="<?=BASEURL ?>/js/main.js"></script>
 </body>
 </html>
