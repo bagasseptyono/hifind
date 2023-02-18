@@ -1,6 +1,10 @@
 <?php
 
 class Barang extends Controller{
+    public function __construct()
+    {
+        
+    }
     public function index(){
         if (!isset($_SESSION["login"])) {
 			header('location: '. BASEURL . '/login');
@@ -14,6 +18,7 @@ class Barang extends Controller{
     public function hilang(){
         $data['title']= 'Barang Hilang';
         $data['barang']= $this->model('Barang_model')->getDataUserFromBarang();
+        
         $this->view('template/header', $data);
         $this->view('barang/hilang', $data);
         $this->view('template/footer');
@@ -38,6 +43,13 @@ class Barang extends Controller{
         $data['barang'] = $this->model('Barang_model')->getDataBarangById($id);
         $this->view('template/header',$data);
         $this->view('barang/detail',$data);
+        $this->view('template/footer');
+    }
+    public function cari(){
+        $data['title']= 'Barang Hilang';
+        $data['barang'] = $this->model('Barang_model')->cari();
+        $this->view('template/header', $data);
+        $this->view('barang/hilang', $data);
         $this->view('template/footer');
     }
 
@@ -77,7 +89,7 @@ class Barang extends Controller{
         $newformat = date('m/d/Y',$time);
         $data['barang']['date'] = $newformat;
         $this->view('template/header',$data);
-        $this->view('barang/edit',$data);
+        $this->view('barang/edit',$data); 
         $this->view('template/footer');
     }
 

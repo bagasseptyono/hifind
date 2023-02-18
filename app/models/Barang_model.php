@@ -31,32 +31,32 @@ class Barang_model{
         $errorGmbr = $file["gambar"]["error"];
         $tmpGmbr = $file["gambar"]["tmp_name"];
 
-        if ($errorGmbr === 4) {
-            echo "<script>
-                    alert('pilih gambar dulu'); 
-                </script>
-            "; 
-            return false;
-        }
+        
 
-        $ekstensiGmbrValid = ['jpg','jpeg','png'];
+        $ekstensiGmbrValid = ['jpg','jpeg','png','heic'];
         $ekstensiGmbr = explode('.',$namaGmbr);
         $ekstensiGmbr = strtolower(end($ekstensiGmbr));
 
-        if (!in_array($ekstensiGmbr,$ekstensiGmbrValid)) {
-            echo "<script>
-                    alert('Bukan gambar'); 
-                </script>
-            "; 
-            return false;
-        }
-
-        $namaGmbrBaru = uniqid();
-        $namaGmbrBaru .= '.';
-        $namaGmbrBaru .= $ekstensiGmbr;
+        
+        
+        if ($errorGmbr === 0) {
+            if (!in_array($ekstensiGmbr,$ekstensiGmbrValid)) {
+                Flasher::setMessage('Gagal','Bukan Gambar PNG / JPG / JPEG / HEIC','danger');
+		        header('location: '. BASEURL . '/barang');
+		        exit;
+            } 
+            $namaGmbrBaru = uniqid();
+            $namaGmbrBaru .= '.';
+            $namaGmbrBaru .= $ekstensiGmbr;
         
 
-        move_uploaded_file($tmpGmbr , 'img/'. $namaGmbrBaru);
+            move_uploaded_file($tmpGmbr , 'img/'. $namaGmbrBaru);
+        }
+
+        
+        if ($errorGmbr === 4){
+            $namaGmbrBaru = "nopicture.png";
+        }
         return $namaGmbrBaru;
     }
 
@@ -66,13 +66,14 @@ class Barang_model{
         $namaGmbrBaru = $this->inputGambar($file);
         $userid = $_SESSION["userid"];
 
-        $query = "INSERT INTO barang (judul_barang , nama_barang , tempat , date , deskripsi , kontak, gambar , user_id)
+        $query = "INSERT INTO barang (judul_barang , nama_barang , tempat, kategori , date , deskripsi , kontak, gambar , user_id)
             VALUES 
-            ( :judul_barang , :nama_barang , :tempat , :date , :deskripsi , :kontak , :gambar, :userid)";
+            ( :judul_barang , :nama_barang , :tempat ,:kategori, :date , :deskripsi , :kontak , :gambar, :userid)";
         $this->db->query($query);
         $this->db->bind('judul_barang', $data['judul_barang']);
         $this->db->bind('nama_barang', $data['nama_barang']);
         $this->db->bind('tempat', $data['tempat']);
+        $this->db->bind('kategori', $data['kategori']);
         $this->db->bind('date', $data['date']);
         $this->db->bind('gambar', $namaGmbrBaru);
         $this->db->bind('deskripsi', $data['deskripsi']);
@@ -94,13 +95,20 @@ class Barang_model{
             unlink($hapus);
             $namaGmbrBaru = $this->inputGambar($file);
         }
+        if ($data["date"]=="1970/01/01") {
+            $time = strtotime($data["tanggalLama"]);
+            $newformat = date('Y/m/d',$time);
+            $data['date'] = $newformat;
+            
+        }
         
-        $query = "UPDATE barang SET judul_barang =:judul_barang, nama_barang=:nama_barang , tempat=:tempat , date=:date , deskripsi=:deskripsi , kontak=:kontak, gambar=:gambar WHERE id_barang=:id_barang";
+        $query = "UPDATE barang SET judul_barang =:judul_barang, nama_barang=:nama_barang , tempat=:tempat ,kategori=:kategori, date=:date , deskripsi=:deskripsi , kontak=:kontak, gambar=:gambar WHERE id_barang=:id_barang";
 
         $this->db->query($query);
         $this->db->bind('judul_barang', $data['judul_barang']);
         $this->db->bind('nama_barang', $data['nama_barang']);
         $this->db->bind('tempat', $data['tempat']);
+        $this->db->bind('kategori', $data['kategori']);
         $this->db->bind('date', $data['date']);
         $this->db->bind('gambar', $namaGmbrBaru);
         $this->db->bind('deskripsi', $data['deskripsi']);
@@ -125,6 +133,21 @@ class Barang_model{
         return $this->db->rowCount();
 
     }
+
+
+
+    public function cari()
+	{
+		$data=$_POST['keyword'];
+		$this->db->query('SELECT * FROM  '. $this->table . ' WHERE 
+        judul_barang LIKE :keyword OR
+        nama_barang LIKE :keyword OR
+        tempat LIKE :keyword OR
+        kategori LIKE :keyword ');
+		$this->db->bind('keyword',"%$data%");
+        $this->db->execute();
+		return $this->db->resultSet();
+	}
 
 
 

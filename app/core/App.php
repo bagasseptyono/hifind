@@ -41,7 +41,6 @@ class App{
             $url = filter_var($url, FILTER_SANITIZE_URL);
             $url = explode('/',$url);
 
-            var_dump($url);
             return $url;
         }
     }
